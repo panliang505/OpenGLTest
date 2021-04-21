@@ -14,7 +14,7 @@ using namespace OpenGLPart1;
 // 定点着色代码
 const char * CPaintBase::m_vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
+"void main()\n" 
 "{\n"
 "	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 "}\0";	//千万别忘记这个\0
