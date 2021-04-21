@@ -89,10 +89,17 @@ namespace OpenGLPart1
     public:
         int paintTexture();
 
+        // 显示不同的纹理
+        int paintDiffTexture();
+
+    protected:
+        static void processInput2(GLFWwindow* window);
+
     private:
         static const float m_vertices[32];
         static const int   m_indices[6];
     };
+
 
 }
 

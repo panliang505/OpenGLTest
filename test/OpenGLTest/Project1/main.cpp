@@ -58,7 +58,8 @@ int main()
     return shaderCase.paintTriangle();*/
 
     OpenGLPart1::TextureCase textureCase;
-    return textureCase.paintTexture();
+    //return textureCase.paintTexture();
+    return textureCase.paintDiffTexture();
 }
 
 // »æÖÆ´°Ìå
