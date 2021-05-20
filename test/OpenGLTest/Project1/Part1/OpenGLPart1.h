@@ -100,7 +100,6 @@ namespace OpenGLPart1
         static const int   m_indices[6];
     };
 
-
 }
 
 #endif // !_OPENGLPART_H_
