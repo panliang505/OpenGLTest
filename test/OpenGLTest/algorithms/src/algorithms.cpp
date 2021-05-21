@@ -219,7 +219,14 @@ int Algorithms::getAlone(int num[], int size)
             ++datas[num[i]];
         }
     }
-    result = datas.at(1);
+    for (auto iter : datas)
+    {
+        if (1 == iter.second)
+        {
+            result = iter.first;
+            break;
+        }
+    }
     std::cout << result << std::endl;
     return result;
 }
