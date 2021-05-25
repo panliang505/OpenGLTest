@@ -138,8 +138,13 @@
     <ClInclude Include="thirdpart\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Part1\TextureShader.fs" />
-    <None Include="Part1\TextureShader.vs" />
+    <None Include="Part1\resource\Shader_6.1.fs" />
+    <None Include="Part1\resource\Shader_6.1.vs" />
+    <None Include="Part1\resource\Shader_6.fs" />
+    <None Include="Part1\resource\Shader_6.vs" />
+    <None Include="Part1\resource\Shader_7.vs" />
+    <None Include="Part1\resource\TextureShader.fs" />
+    <None Include="Part1\resource\TextureShader.vs" />
     <None Include="Shader\Shader.fs" />
     <None Include="Shader\Shader.vs" />
   </ItemGroup>

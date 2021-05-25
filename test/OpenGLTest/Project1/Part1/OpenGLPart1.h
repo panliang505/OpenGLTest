@@ -95,9 +95,17 @@ namespace OpenGLPart1
     protected:
         static void processInput2(GLFWwindow* window);
 
-    private:
+    protected:
         static const float m_vertices[32];
         static const int   m_indices[6];
+    };
+
+    // µÚÆßÕÂ ×ø±ê×ª»»
+    class CoordinateTransf : public TextureCase
+    {
+    public:
+        int paintTransTexture();
+
     };
 
 }

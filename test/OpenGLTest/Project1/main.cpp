@@ -57,9 +57,14 @@ int main()
     /*OpenGLPart1::ShaderCase shaderCase;
     return shaderCase.paintTriangle();*/
 
-    OpenGLPart1::TextureCase textureCase;
+    //OpenGLPart1::TextureCase textureCase;
     //return textureCase.paintTexture();
-    return textureCase.paintDiffTexture();
+    //return textureCase.paintDiffTexture();
+
+    OpenGLPart1::CoordinateTransf coordinateTransf;
+    coordinateTransf.paintTransTexture();
+
+    return 0;
 }
 
 // »æÖÆ´°Ìå

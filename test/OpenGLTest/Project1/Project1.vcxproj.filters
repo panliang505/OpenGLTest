@@ -55,11 +55,26 @@
     <None Include="Shader\Shader.vs">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Part1\TextureShader.fs">
-      <Filter>Shader</Filter>
+    <None Include="Part1\resource\Shader_6.1.fs">
+      <Filter>Part1</Filter>
     </None>
-    <None Include="Part1\TextureShader.vs">
-      <Filter>Shader</Filter>
+    <None Include="Part1\resource\Shader_6.1.vs">
+      <Filter>Part1</Filter>
+    </None>
+    <None Include="Part1\resource\Shader_6.fs">
+      <Filter>Part1</Filter>
+    </None>
+    <None Include="Part1\resource\Shader_6.vs">
+      <Filter>Part1</Filter>
+    </None>
+    <None Include="Part1\resource\TextureShader.fs">
+      <Filter>Part1</Filter>
+    </None>
+    <None Include="Part1\resource\TextureShader.vs">
+      <Filter>Part1</Filter>
+    </None>
+    <None Include="Part1\resource\Shader_7.vs">
+      <Filter>Part1</Filter>
     </None>
   </ItemGroup>
 </Project>
