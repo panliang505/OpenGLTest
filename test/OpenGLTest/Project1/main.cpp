@@ -61,8 +61,11 @@ int main()
     //return textureCase.paintTexture();
     //return textureCase.paintDiffTexture();
 
-    OpenGLPart1::CoordinateTransf coordinateTransf;
-    coordinateTransf.paintTransTexture();
+    //OpenGLPart1::CoordinateTransf coordinateTransf;
+    //coordinateTransf.paintTransTexture();
+
+    OpenGLPart1::Show3DCube threaddCube;
+    threaddCube.show3DCube(10);
 
     return 0;
 }

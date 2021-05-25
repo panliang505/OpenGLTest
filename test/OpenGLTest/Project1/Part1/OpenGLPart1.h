@@ -108,6 +108,15 @@ namespace OpenGLPart1
 
     };
 
+    // 第八章 显示3D立方体
+    class Show3DCube : CPaintBase
+    {
+    public:
+        int show3DCube(int cubeSize = 1);
+
+    protected:
+        static const float m_vertices[];
+    };
 }
 
 #endif // !_OPENGLPART_H_
