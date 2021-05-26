@@ -109,13 +109,32 @@ namespace OpenGLPart1
     };
 
     // 第八章 显示3D立方体
-    class Show3DCube : CPaintBase
+    class Show3DCube : public CPaintBase
     {
     public:
         int show3DCube(int cubeSize = 1);
 
     protected:
         static const float m_vertices[];
+    };
+
+    // 第九章 FPS 摄像机
+    class FPSCamera : public Show3DCube
+    {
+    public:
+        int showFPSCamera(int cubeSize = 1);
+
+    protected:
+        static void processInput3(GLFWwindow* window);
+        static void mouseCallback(GLFWwindow* window, double xPos, double yPos);
+        static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    protected:
+        static float m_deltaTime;
+        static float m_lastFrame;
+        static float lastX, lastY;
+        static bool firstMouse;
+        static float yaw , pitch;
+        static double fov;
     };
 }
 

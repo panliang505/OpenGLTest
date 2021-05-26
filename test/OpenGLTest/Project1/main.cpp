@@ -64,8 +64,11 @@ int main()
     //OpenGLPart1::CoordinateTransf coordinateTransf;
     //coordinateTransf.paintTransTexture();
 
-    OpenGLPart1::Show3DCube threaddCube;
-    threaddCube.show3DCube(10);
+    //OpenGLPart1::Show3DCube threaddCube;
+    //threaddCube.show3DCube(1);
+
+    OpenGLPart1::FPSCamera fpsCamera;
+    fpsCamera.showFPSCamera(10);
 
     return 0;
 }
@@ -234,3 +237,4 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
     }
 }
+

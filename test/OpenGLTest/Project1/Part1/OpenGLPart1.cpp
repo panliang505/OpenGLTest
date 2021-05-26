@@ -1090,7 +1090,7 @@ int Show3DCube::show3DCube(int cubeSize /*= 1*/)
         {
             glm::mat4 model;
             model = glm::translate(model, gcubePositions[i]);
-            float angle = 20.0f * i;
+            float angle = 20.0f * (i + 1);
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             shader.setMat4("model", glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -1104,4 +1104,237 @@ int Show3DCube::show3DCube(int cubeSize /*= 1*/)
     glDeleteBuffers(1, &VBO);
     glfwTerminate();
     return 0;
+}
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 4.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float FPSCamera::m_deltaTime = 0.0f;
+float FPSCamera::m_lastFrame = 0.0f;
+
+float FPSCamera::lastX = 400, FPSCamera::lastY = 300;
+bool FPSCamera::firstMouse = true;
+float FPSCamera::yaw = 0.0f, FPSCamera::pitch = 0.0f;
+
+double FPSCamera::fov = 45.0;
+
+int FPSCamera::showFPSCamera(int cubeSize /*= 1*/)
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", nullptr, nullptr);
+    if (window == nullptr) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    //获取最大属性数量
+    int nrAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+    std::cout << "support max attributes:" << nrAttributes << std::endl;
+
+    glEnable(GL_DEPTH_TEST);
+
+    // 创建着色器
+    std::string path = getProgramDir();
+    std::string vertexPath = path + "\\Shader_8.vs";
+    std::string fragmentPath = path + "\\Shader_6.fs";
+    Shader shader(vertexPath.c_str(), fragmentPath.c_str());
+
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // 纹理1
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // 设置纹理包装和过滤的方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    int width, height, channels;
+    stbi_set_flip_vertically_on_load(true);
+    std::string filePath = path + "\\beauty.jpg";
+    unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
+    if (data)
+    {
+        GLint format = channels == 3 ? GL_RGB : GL_RGBA;
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB/*format*/, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "无法加载问题， 请检查代码或资源是否有误。" << std::endl;
+    }
+    stbi_image_free(data);
+
+    // 纹理2
+    unsigned int texture2;
+    glGenTextures(1, &texture2);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // 设置纹理包装和过滤的方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_set_flip_vertically_on_load(true);
+    std::string filePath2 = path + "\\awesomeface.png";
+    unsigned char* data2 = stbi_load(filePath2.c_str(), &width, &height, &channels, 0);
+    if (data2)
+    {
+        GLint format = channels == 3 ? GL_RGB : GL_RGBA;
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA/*format*/, width, height, 0, format, GL_UNSIGNED_BYTE, data2);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "无法加载问题， 请检查代码或资源是否有误。" << std::endl;
+    }
+    stbi_image_free(data2);
+
+    //告诉OpenGL哪个采样器属于哪个纹理单元
+    shader.use();
+    shader.setInt("texture1", 0);
+    shader.setInt("texture2", 1);
+
+    /*glm::mat4 view;
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
+
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);*/
+
+    while (!glfwWindowShouldClose(window)) {
+        processInput3(window);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        
+        float currentFrame = glfwGetTime();
+        m_deltaTime = currentFrame - m_lastFrame;
+        m_lastFrame = currentFrame;
+
+        shader.use();
+
+        glm::mat4 projection;
+        projection = glm::perspective(glm::radians((float)fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 1.0f, 100.0f);
+
+        glm::mat4 view;
+        //float radius = 10.0f;
+        //float camX = sin(glfwGetTime())*radius;
+        //float camZ = cos(glfwGetTime())*radius;
+        //view = glm::lookAt(glm::vec3(camX,0.0f, camZ), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f, 0.0f));
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+        shader.setMat4("view", glm::value_ptr(view));
+        shader.setMat4("projection", glm::value_ptr(projection));
+
+        glBindVertexArray(VAO);
+        for (int i = 0; i < cubeSize; ++i)
+        {
+            glm::mat4 model;
+            model = glm::translate(model, gcubePositions[i]);
+            float angle = 20.0f * (i + 1);
+            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.setMat4("model", glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glfwTerminate();
+    return 0;
+}
+
+void FPSCamera::processInput3(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    
+    float cameraSpeed = 2.5f * m_deltaTime;// 移动速度
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)*cameraSpeed);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)*cameraSpeed);
+}
+
+void FPSCamera::mouseCallback(GLFWwindow* window, double xPos, double yPos)
+{
+    if (firstMouse) { // 设置初始位置，防止突然跳到某个方向上
+        lastX = xPos;
+        lastY = yPos;
+        firstMouse = false;
+    }
+
+    float xoffset = lastX - xPos; //别忘了，在窗口中，左边的坐标小于右边的坐标，而我们需要一个正的角度
+    float yoffset = lastY - yPos; //同样，在窗口中，下面的坐标大于上面的坐标，而我们往上抬头的时候需要一个正的角度
+    lastX = xPos;
+    lastY = yPos;
+
+    float sensitivity = 0.05f; // 旋转精度
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f) // 往上看不能超过90度
+        pitch = 89.0f;
+    if (pitch < -89.0f) // 往下看也不能超过90度
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = -sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = -cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    cameraFront = glm::normalize(front);
+}
+
+void FPSCamera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov >= 1.0 && fov <= 120.0)
+        fov -= yoffset;
+    if (fov <= 1.0)
+        fov = 1.0;
+    if (fov >= 120.0)
+        fov = 120.0;
 }
